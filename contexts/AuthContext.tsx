@@ -3,11 +3,12 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { supabase } from "@/lib/supabaseClient";
 import { useRouter } from "next/navigation";
+import { User } from "@supabase/supabase-js";
 
 const AuthContext = createContext<any>(null);
 
 export function AuthProvider({ children }: any) {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<User | null>(null);   // ✅ FIXED
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
@@ -39,14 +40,14 @@ export function AuthProvider({ children }: any) {
       }
 
       const { data } = await supabase.auth.getSession();
-      setUser(data.session?.user ?? null);
+      setUser(data.session?.user ?? null);  // ✅ This now works perfectly
       setLoading(false);
     };
 
     init();
 
     supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      setUser(session?.user ?? null);   // ✅ Works
       setLoading(false);
     });
   }, []);
