@@ -46,7 +46,7 @@ export default function AuthCallback() {
               
               // Redirect to dashboard
               setTimeout(() => {
-                router.push('/lessons')
+                router.push('/')
               }, 1500)
               return
             }
@@ -58,7 +58,7 @@ export default function AuthCallback() {
         if (session) {
           setStatus('success')
           setMessage('Welcome back! Redirecting to dashboard...')
-          setTimeout(() => router.push('/lessons'), 1000)
+          setTimeout(() => router.push('/'), 1000)
           return
         }
 
