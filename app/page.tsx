@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabaseClient";
 import { 
   ArrowRight, 
   WalletCards, 
@@ -25,7 +26,8 @@ import {
   BarChart3,
   LogOut
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect,useRef } from "react";
+
 
 // Mock data - replace with actual API calls
 const mockCreditData = {
@@ -105,28 +107,35 @@ const features = [
 ];
 
 export default function WalletLanding() {
-  const { user, loading, signInWithCrowbar, signOut } = useAuth();
+ const { user, loading, signInWithCrowbar, signOutUser } = useAuth();
+
   const [creditData, setCreditData] = useState(mockCreditData);
-  const [activeTab, setActiveTab] = useState('all');
+  const [activeTab, setActiveTab] = useState("all");
 
-  // Fetch credit data when user is authenticated
+  /** ⭐ FIX: Dropdown closing issue */
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
-    if (user) {
-      // TODO: Replace with actual API call to fetch user's credit data
-      console.log('Fetching credit data for user:', user.email);
-      // fetchUserCredits(user.id).then(setCreditData);
+    function handleClickOutside(e: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setIsDropdownOpen(false);
+      }
     }
-  }, [user]);
 
-  const filteredHistory = activeTab === 'all' 
-    ? creditData.history 
-    : creditData.history.filter(item => item.type === activeTab);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-  // Format user email for display
-  const formatUserEmail = (email: string) => {
-    return email.length > 20 ? `${email.substring(0, 20)}...` : email;
-  };
+  const filteredHistory =
+    activeTab === "all"
+      ? creditData.history
+      : creditData.history.filter((item) => item.type === activeTab);
 
+  const formatUserEmail = (email: string) =>
+    email.length > 20 ? `${email.substring(0, 20)}...` : email;
+
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 text-slate-900 scroll-smooth overflow-x-hidden">
 
@@ -138,12 +147,11 @@ export default function WalletLanding() {
       </div>
 
       {/* ========== MODERN NAVBAR ========== */}
-      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
+       <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+
           {/* Logo */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
             className="flex items-center gap-3 group cursor-pointer"
           >
             <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
@@ -157,84 +165,78 @@ export default function WalletLanding() {
             </div>
           </motion.div>
 
-          {/* Navigation */}
+          {/* Links */}
           <nav className="hidden md:flex items-center gap-8">
-            {['Home', 'Credits', 'Earn', 'Use'].map((item, index) => (
+            {["Home", "Credits", "Earn", "Use"].map((item, index) => (
               <motion.a
                 key={item}
-                href={`#${item.toLowerCase().replace(' ', '')}`}
+                href={`#${item.toLowerCase()}`}
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 className="text-slate-600 hover:text-slate-900 font-medium transition-colors relative group"
               >
                 {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 group-hover:w-full transition-all duration-300"></span>
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 group-hover:w-full transition-all"></span>
               </motion.a>
             ))}
           </nav>
 
-          {/* Auth Section */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-4"
-          >
+          {/* RIGHT: Auth */}
+          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
             {loading ? (
-              <div className="px-4 py-2 rounded-xl bg-slate-100 border border-slate-200">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 bg-cyan-500 rounded-full animate-pulse"></div>
-                  <span className="text-slate-600 text-sm font-medium">Checking...</span>
-                </div>
+              <div className="px-4 py-2 bg-slate-100 border border-slate-200 rounded-xl">
+                Checking...
               </div>
             ) : user ? (
               <div className="flex items-center gap-4">
-                {/* User Info */}
+
+                {/* Email */}
                 <div className="hidden sm:block text-right">
-                  <div className="text-sm font-semibold text-emerald-600">
-                    Welcome back!
-                  </div>
+                  <div className="text-sm font-semibold text-emerald-600">Welcome back!</div>
                   <div className="text-xs text-slate-500">
-                    {formatUserEmail(user.email || '')}
+                    {formatUserEmail(user.email || "")}
                   </div>
                 </div>
-                
-                {/* User Avatar */}
-                <div className="relative group">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shadow-md cursor-pointer">
-                    <div className="text-white text-sm font-semibold">
-                      {user.email?.charAt(0).toUpperCase()}
-                    </div>
-                  </div>
-                  
-                  {/* Dropdown Menu */}
-                  <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                    <div className="p-4 border-b border-slate-100">
-                      <div className="text-sm font-semibold text-slate-900 truncate">
-                        {user.email}
+
+                {/* FIXED DROPDOWN */}
+                <div ref={dropdownRef} className="relative">
+                  <button
+                    onClick={() => setIsDropdownOpen((p) => !p)}
+                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-semibold flex items-center justify-center shadow-md hover:scale-105 transition-transform"
+                  >
+                    {user.email?.charAt(0).toUpperCase()}
+                  </button>
+
+                  {isDropdownOpen && (
+                    <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-50">
+                      <div className="p-4 border-b border-slate-100">
+                        <div className="text-sm font-semibold text-slate-900 truncate">
+                          {user.email}
+                        </div>
+                        <div className="text-xs text-slate-500 mt-1">Crowbar Account</div>
                       </div>
-                      <div className="text-xs text-slate-500 mt-1">
-                        Crowbar Account
-                      </div>
+
+                      <button
+                        onClick={() => {
+                          setIsDropdownOpen(false);
+                          signOutUser();
+                        }}
+                        className="w-full px-4 py-3 flex items-center gap-3 text-sm text-slate-600 hover:bg-slate-50 rounded-b-xl"
+                      >
+                        <LogOut className="w-4 h-4" /> Sign Out
+                      </button>
                     </div>
-                    <button
-                      onClick={signOut}
-                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-slate-600 hover:bg-slate-50 rounded-b-xl transition-colors"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      Sign Out
-                    </button>
-                  </div>
+                  )}
                 </div>
               </div>
             ) : (
               <button
                 onClick={signInWithCrowbar}
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white text-sm font-semibold shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 group shadow-cyan-500/25"
+                className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl shadow-md hover:shadow-xl flex items-center gap-2"
               >
                 <WalletCards className="w-4 h-4" />
                 Sign In with Crowbar
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
               </button>
             )}
           </motion.div>

@@ -20,7 +20,9 @@ export function AuthProvider({ children }: any) {
 
   const signOutUser = async () => {
     await supabase.auth.signOut();
-    router.push("/");
+     setUser(null);    // ⬅️ ensures UI updates immediately
+    router.push("/"); 
+    
   };
 
   useEffect(() => {
