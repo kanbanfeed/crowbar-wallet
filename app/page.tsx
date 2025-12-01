@@ -200,7 +200,7 @@ export default function WalletLanding() {
 
       {/* ========== MODERN NAVBAR ========== */}
       <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
-  <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+  <div className="w-full flex items-center justify-between px-6 py-4">
 
     {/* Logo */}
     <motion.div
@@ -218,7 +218,7 @@ export default function WalletLanding() {
         <div className="text-xs text-slate-500 -mt-1">Credit Management</div>
       </div>
     </motion.div>
-
+    <div className="flex-1" />
     {/* ---------------- MOBILE MENU BUTTON ---------------- */}
     <div className="md:hidden">
       <button
@@ -249,7 +249,7 @@ export default function WalletLanding() {
         </motion.a>
       ))}
     </nav>
-
+<div className="md:flex-1" />
     {/* ---------------- RIGHT SIDE AUTH ---------------- */}
     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
       {loading ? (
