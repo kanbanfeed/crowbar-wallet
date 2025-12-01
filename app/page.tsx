@@ -566,7 +566,7 @@ export default function WalletLanding() {
                 <h3 className="text-2xl font-bold mb-4">Premium Redemption Coming Soon</h3>
                 <p className="text-violet-100 text-lg mb-6 max-w-md mx-auto">
                   We are building an incredible marketplace for you to spend your hard-earned credits.
-                  Launching Q1 2024.
+                  Launching Q1 2025.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                   <div className="px-4 py-2 rounded-full bg-white/20 text-violet-100 text-sm border border-white/30 backdrop-blur-sm">
@@ -626,7 +626,7 @@ export default function WalletLanding() {
             </div>
             
             <div className="text-white text-sm text-center md:text-right">
-              <div className="font-medium">© 2024 Crowbar Wallet — Part of the Crowbar Connected Network</div>
+              <div className="font-medium">© 2025 Crowbar Wallet — Part of the Crowbar Connected Network</div>
               <div className="text-xs mt-1 text-white">Securely integrated with Crowbar Dashboard</div>
             </div>
           </div>
