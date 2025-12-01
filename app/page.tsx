@@ -3,11 +3,11 @@
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabaseClient";
-import { 
-  ArrowRight, 
-  WalletCards, 
-  Crown, 
-  Sparkles, 
+import {
+  ArrowRight,
+  WalletCards,
+  Crown,
+  Sparkles,
   TrendingUp,
   Gift,
   Zap,
@@ -24,24 +24,69 @@ import {
   Rocket,
   Shield,
   BarChart3,
-  LogOut
+  LogOut,
+  X,
+  Construction,
 } from "lucide-react";
-import { useState, useEffect,useRef } from "react";
+import { useState, useEffect, useRef } from "react";
+import { Menu } from "lucide-react";
 
 
 // Mock data - replace with actual API calls
 const mockCreditData = {
   balance: 1250,
   history: [
-    { id: 1, type: 'earned', amount: 500, description: 'Profile Completion', date: '2024-01-15', status: 'completed' },
-    { id: 2, type: 'earned', amount: 250, description: 'Referral Bonus', date: '2024-01-14', status: 'completed' },
-    { id: 3, type: 'earned', amount: 300, description: 'Weekly Challenge', date: '2024-01-13', status: 'completed' },
-    { id: 4, type: 'used', amount: -200, description: 'Premium Feature', date: '2024-01-12', status: 'completed' },
-    { id: 5, type: 'earned', amount: 400, description: 'Skill Event', date: '2024-01-10', status: 'completed' },
+    {
+      id: 1,
+      type: "earned",
+      amount: 500,
+      description: "Profile Completion",
+      date: "2024-01-15",
+      status: "completed",
+    },
+    {
+      id: 2,
+      type: "earned",
+      amount: 250,
+      description: "Referral Bonus",
+      date: "2024-01-14",
+      status: "completed",
+    },
+    {
+      id: 3,
+      type: "earned",
+      amount: 300,
+      description: "Weekly Challenge",
+      date: "2024-01-13",
+      status: "completed",
+    },
+    {
+      id: 4,
+      type: "used",
+      amount: -200,
+      description: "Premium Feature",
+      date: "2024-01-12",
+      status: "completed",
+    },
+    {
+      id: 5,
+      type: "earned",
+      amount: 400,
+      description: "Skill Event",
+      date: "2024-01-10",
+      status: "completed",
+    },
   ],
   upcoming: [
-    { id: 6, type: 'pending', amount: 150, description: 'Tier Achievement', date: '2024-01-20', status: 'pending' }
-  ]
+    {
+      id: 6,
+      type: "pending",
+      amount: 150,
+      description: "Tier Achievement",
+      date: "2024-01-20",
+      status: "pending",
+    },
+  ],
 };
 
 const earningMethods = [
@@ -51,7 +96,7 @@ const earningMethods = [
     description: "Finish setting up your Crowbar profile",
     credits: 500,
     status: "completed",
-    color: "from-emerald-500 to-cyan-500"
+    color: "from-emerald-500 to-cyan-500",
   },
   {
     icon: Users,
@@ -59,7 +104,7 @@ const earningMethods = [
     description: "Earn credits for each successful referral",
     credits: 250,
     status: "available",
-    color: "from-violet-500 to-purple-500"
+    color: "from-violet-500 to-purple-500",
   },
   {
     icon: Zap,
@@ -67,7 +112,7 @@ const earningMethods = [
     description: "Participate in weekly skill challenges",
     credits: 300,
     status: "available",
-    color: "from-amber-500 to-orange-500"
+    color: "from-amber-500 to-orange-500",
   },
   {
     icon: Crown,
@@ -75,8 +120,8 @@ const earningMethods = [
     description: "Unlock new tiers and earn bonus credits",
     credits: 400,
     status: "available",
-    color: "from-rose-500 to-pink-500"
-  }
+    color: "from-rose-500 to-pink-500",
+  },
 ];
 
 const features = [
@@ -84,37 +129,41 @@ const features = [
     icon: Rocket,
     title: "Instant Updates",
     description: "Real-time credit tracking and synchronization",
-    color: "text-blue-600"
+    color: "text-blue-600",
   },
   {
     icon: Shield,
     title: "Secure & Verified",
     description: "Bank-level security with Crowbar verification",
-    color: "text-emerald-600"
+    color: "text-emerald-600",
   },
   {
     icon: BarChart3,
     title: "Smart Analytics",
     description: "Detailed insights into your credit activity",
-    color: "text-purple-600"
+    color: "text-purple-600",
   },
   {
     icon: Star,
     title: "Premium Rewards",
     description: "Exclusive benefits for active members",
-    color: "text-amber-600"
-  }
+    color: "text-amber-600",
+  },
 ];
 
 export default function WalletLanding() {
- const { user, loading, signInWithCrowbar, signOutUser } = useAuth();
+  const { user, loading, signInWithCrowbar, signOutUser } = useAuth();
+  const [mobileMenu, setMobileMenu] = useState(false);
 
   const [creditData, setCreditData] = useState(mockCreditData);
   const [activeTab, setActiveTab] = useState("all");
 
-  /** ⭐ FIX: Dropdown closing issue */
+  /** ⭐ Dropdown closing issue fix */
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+
+  /** ⭐ Coming Soon placeholder overlay */
+  const [showPlaceholder, setShowPlaceholder] = useState(false);
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
@@ -135,10 +184,13 @@ export default function WalletLanding() {
   const formatUserEmail = (email: string) =>
     email.length > 20 ? `${email.substring(0, 20)}...` : email;
 
-  
+  const openPlaceholder = () => {
+    setShowPlaceholder(true);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 text-slate-900 scroll-smooth overflow-x-hidden">
-
       {/* Background Elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rounded-full blur-3xl"></div>
@@ -147,101 +199,158 @@ export default function WalletLanding() {
       </div>
 
       {/* ========== MODERN NAVBAR ========== */}
-       <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
-        <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+      <header className="fixed top-0 w-full z-50 bg-white/80 backdrop-blur-xl border-b border-slate-200/60 shadow-sm">
+  <div className="max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
 
-          {/* Logo */}
-          <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}
-            className="flex items-center gap-3 group cursor-pointer"
-          >
-            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
-              <WalletCards className="w-5 h-5 text-white" />
+    {/* Logo */}
+    <motion.div
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="flex items-center gap-3 group cursor-pointer"
+    >
+      <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:scale-105 transition-transform">
+        <WalletCards className="w-5 h-5 text-white" />
+      </div>
+      <div>
+        <span className="font-bold tracking-tight text-lg bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+          Crowbar Wallet
+        </span>
+        <div className="text-xs text-slate-500 -mt-1">Credit Management</div>
+      </div>
+    </motion.div>
+
+    {/* ---------------- MOBILE MENU BUTTON ---------------- */}
+    <div className="md:hidden">
+      <button
+        onClick={() => setMobileMenu((prev) => !prev)}
+        className="p-3 rounded-xl bg-slate-100 hover:bg-slate-200 transition"
+      >
+        {mobileMenu ? (
+          <X className="w-6 h-6 text-slate-700" />
+        ) : (
+          <Menu className="w-6 h-6 text-slate-700" />
+        )}
+      </button>
+    </div>
+
+    {/* ---------------- DESKTOP NAV LINKS ---------------- */}
+    <nav className="hidden md:flex items-center gap-8">
+      {["Home", "Credits", "Earn", "Use"].map((item, index) => (
+        <motion.a
+          key={item}
+          href={`#${item.toLowerCase()}`}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: index * 0.1 }}
+          className="text-slate-600 hover:text-slate-900 font-medium transition-colors relative group"
+        >
+          {item}
+          <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 group-hover:w-full transition-all"></span>
+        </motion.a>
+      ))}
+    </nav>
+
+    {/* ---------------- RIGHT SIDE AUTH ---------------- */}
+    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+      {loading ? (
+        <div className="px-4 py-2 bg-slate-100 border border-slate-200 rounded-xl">
+          Checking...
+        </div>
+      ) : user ? (
+        <div className="hidden md:flex items-center gap-4">
+          {/* Email */}
+          <div className="hidden sm:block text-right">
+            <div className="text-sm font-semibold text-emerald-600">
+              Welcome back!
             </div>
-            <div>
-              <span className="font-bold tracking-tight text-lg bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-                Crowbar Wallet
-              </span>
-              <div className="text-xs text-slate-500 -mt-1">Credit Management</div>
+            <div className="text-xs text-slate-500">
+              {formatUserEmail(user.email || "")}
             </div>
-          </motion.div>
+          </div>
 
-          {/* Links */}
-          <nav className="hidden md:flex items-center gap-8">
-            {["Home", "Credits", "Earn", "Use"].map((item, index) => (
-              <motion.a
-                key={item}
-                href={`#${item.toLowerCase()}`}
-                initial={{ opacity: 0, y: -10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="text-slate-600 hover:text-slate-900 font-medium transition-colors relative group"
-              >
-                {item}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-cyan-500 to-blue-500 group-hover:w-full transition-all"></span>
-              </motion.a>
-            ))}
-          </nav>
+          {/* Profile Dropdown */}
+          <div ref={dropdownRef} className="relative">
+            <button
+              onClick={() => setIsDropdownOpen((p) => !p)}
+              className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-semibold flex items-center justify-center shadow-md hover:scale-105 transition-transform"
+            >
+              {user.email?.charAt(0).toUpperCase()}
+            </button>
 
-          {/* RIGHT: Auth */}
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
-            {loading ? (
-              <div className="px-4 py-2 bg-slate-100 border border-slate-200 rounded-xl">
-                Checking...
-              </div>
-            ) : user ? (
-              <div className="flex items-center gap-4">
-
-                {/* Email */}
-                <div className="hidden sm:block text-right">
-                  <div className="text-sm font-semibold text-emerald-600">Welcome back!</div>
-                  <div className="text-xs text-slate-500">
-                    {formatUserEmail(user.email || "")}
+            {isDropdownOpen && (
+              <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-50">
+                <div className="p-4 border-b border-slate-100">
+                  <div className="text-sm font-semibold text-slate-900 truncate">
+                    {user.email}
+                  </div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    Crowbar Account
                   </div>
                 </div>
 
-                {/* FIXED DROPDOWN */}
-                <div ref={dropdownRef} className="relative">
-                  <button
-                    onClick={() => setIsDropdownOpen((p) => !p)}
-                    className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-600 text-white font-semibold flex items-center justify-center shadow-md hover:scale-105 transition-transform"
-                  >
-                    {user.email?.charAt(0).toUpperCase()}
-                  </button>
-
-                  {isDropdownOpen && (
-                    <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-slate-200 z-50">
-                      <div className="p-4 border-b border-slate-100">
-                        <div className="text-sm font-semibold text-slate-900 truncate">
-                          {user.email}
-                        </div>
-                        <div className="text-xs text-slate-500 mt-1">Crowbar Account</div>
-                      </div>
-
-                      <button
-                        onClick={() => {
-                          setIsDropdownOpen(false);
-                          signOutUser();
-                        }}
-                        className="w-full px-4 py-3 flex items-center gap-3 text-sm text-slate-600 hover:bg-slate-50 rounded-b-xl"
-                      >
-                        <LogOut className="w-4 h-4" /> Sign Out
-                      </button>
-                    </div>
-                  )}
-                </div>
+                <button
+                  onClick={() => {
+                    setIsDropdownOpen(false);
+                    signOutUser();
+                  }}
+                  className="w-full px-4 py-3 flex items-center gap-3 text-sm text-slate-600 hover:bg-slate-50 rounded-b-xl"
+                >
+                  <LogOut className="w-4 h-4" /> Sign Out
+                </button>
               </div>
-            ) : (
-              <button
-                onClick={signInWithCrowbar}
-                className="px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl shadow-md hover:shadow-xl flex items-center gap-2"
-              >
-                <WalletCards className="w-4 h-4" />
-                Sign In with Crowbar
-              </button>
             )}
-          </motion.div>
+          </div>
         </div>
-      </header>
+      ) : (
+        <button
+          onClick={signInWithCrowbar}
+          className="hidden md:flex px-6 py-2.5 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl shadow-md hover:shadow-xl gap-2"
+        >
+          <WalletCards className="w-4 h-4" />
+          Sign In with Crowbar
+        </button>
+      )}
+    </motion.div>
+  </div>
+
+  {/* ---------------- MOBILE DROPDOWN MENU ---------------- */}
+  {mobileMenu && (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="md:hidden bg-white border-t border-slate-200 shadow-lg px-6 py-4 space-y-4"
+    >
+      {["Home", "Credits", "Earn", "Use"].map((item) => (
+        <a
+          key={item}
+          href={`#${item.toLowerCase()}`}
+          onClick={() => setMobileMenu(false)}
+          className="block text-slate-700 text-lg font-medium py-2"
+        >
+          {item}
+        </a>
+      ))}
+
+      {/* Auth inside mobile menu */}
+      {!user ? (
+        <button
+          onClick={signInWithCrowbar}
+          className="w-full px-6 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl shadow-md"
+        >
+          Sign In with Crowbar
+        </button>
+      ) : (
+        <button
+          onClick={signOutUser}
+          className="w-full px-6 py-3 bg-red-100 text-red-600 rounded-xl"
+        >
+          Sign Out
+        </button>
+      )}
+    </motion.div>
+  )}
+</header>
+
 
       {/* ========== VIBRANT HERO SECTION ========== */}
       <section id="home" className="pt-36 pb-28 text-center px-4 max-w-5xl mx-auto">
@@ -271,8 +380,9 @@ export default function WalletLanding() {
           transition={{ delay: 0.2 }}
           className="text-slate-600 text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed font-medium"
         >
-          Track, earn, and manage your Crowbar credits in one beautifully designed interface. 
-          Real-time updates, comprehensive history, and seamless integration.
+          Track, earn, and manage your Crowbar credits in one beautifully designed
+          interface. Real-time updates, comprehensive history, and seamless
+          integration.
         </motion.p>
 
         {/* Feature Grid */}
@@ -291,7 +401,9 @@ export default function WalletLanding() {
               className="p-4 rounded-2xl bg-white/60 backdrop-blur-sm border border-slate-200/60 shadow-sm hover:shadow-md transition-all duration-300"
             >
               <feature.icon className={`w-6 h-6 ${feature.color} mb-2 mx-auto`} />
-              <div className="text-xs font-semibold text-slate-700">{feature.title}</div>
+              <div className="text-xs font-semibold text-slate-700">
+                {feature.title}
+              </div>
             </motion.div>
           ))}
         </motion.div>
@@ -312,12 +424,15 @@ export default function WalletLanding() {
                 Sign In with Crowbar SSO
                 <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </button>
-              <button className="px-8 py-4 rounded-xl border border-slate-300 bg-white/80 hover:bg-white text-slate-700 text-base font-semibold shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm">
+              <button
+                onClick={openPlaceholder}
+                className="px-8 py-4 rounded-xl border border-slate-300 bg-white/80 hover:bg-white text-slate-700 text-base font-semibold shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm"
+              >
                 Watch Demo
               </button>
             </>
           ) : (
-            <motion.div 
+            <motion.div
               className="text-center bg-white/80 backdrop-blur-sm rounded-2xl p-8 shadow-lg border border-slate-200/60"
               whileHover={{ scale: 1.02 }}
               transition={{ type: "spring", stiffness: 300 }}
@@ -326,7 +441,9 @@ export default function WalletLanding() {
                 {creditData.balance} Credits
               </div>
               <div className="text-slate-600 font-medium">Current Balance</div>
-              <div className="text-sm text-slate-500 mt-2">Live from Crowbar Dashboard</div>
+              <div className="text-sm text-slate-500 mt-2">
+                Live from Crowbar Dashboard
+              </div>
             </motion.div>
           )}
         </motion.div>
@@ -378,7 +495,9 @@ export default function WalletLanding() {
                   <WalletCards className="w-8 h-8 text-blue-600" />
                   <Zap className="w-6 h-6 text-amber-500" />
                 </div>
-                <div className="text-3xl font-bold mb-2 text-slate-900">{creditData.balance - 200}</div>
+                <div className="text-3xl font-bold mb-2 text-slate-900">
+                  {creditData.balance - 200}
+                </div>
                 <div className="text-slate-700 font-semibold">Available Now</div>
                 <div className="text-slate-500 text-sm mt-2">Ready to use</div>
               </motion.div>
@@ -412,21 +531,21 @@ export default function WalletLanding() {
                     <History className="w-5 h-5 text-cyan-600" />
                     Credit History
                   </h3>
-                  
+
                   {/* Filter Tabs */}
                   <div className="flex gap-1 bg-slate-100 rounded-lg p-1">
                     {[
-                      { id: 'all', label: 'All' },
-                      { id: 'earned', label: 'Earned' },
-                      { id: 'used', label: 'Used' }
-                    ].map(tab => (
+                      { id: "all", label: "All" },
+                      { id: "earned", label: "Earned" },
+                      { id: "used", label: "Used" },
+                    ].map((tab) => (
                       <button
                         key={tab.id}
                         onClick={() => setActiveTab(tab.id)}
                         className={`px-4 py-2 rounded-md text-sm font-medium transition-all ${
                           activeTab === tab.id
-                            ? 'bg-white text-cyan-700 shadow-sm'
-                            : 'text-slate-600 hover:text-slate-900'
+                            ? "bg-white text-cyan-700 shadow-sm"
+                            : "text-slate-600 hover:text-slate-900"
                         }`}
                       >
                         {tab.label}
@@ -447,25 +566,38 @@ export default function WalletLanding() {
                       className="flex items-center justify-between p-4 rounded-xl bg-slate-50/50 hover:bg-slate-100/50 transition-colors group border border-transparent hover:border-slate-200"
                     >
                       <div className="flex items-center gap-4">
-                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                          transaction.type === 'earned' 
-                            ? 'bg-emerald-100 text-emerald-600' 
-                            : 'bg-rose-100 text-rose-600'
-                        } group-hover:scale-110 transition-transform`}>
-                          {transaction.type === 'earned' ? <TrendingUp className="w-5 h-5" /> : <CreditCard className="w-5 h-5" />}
+                        <div
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                            transaction.type === "earned"
+                              ? "bg-emerald-100 text-emerald-600"
+                              : "bg-rose-100 text-rose-600"
+                          } group-hover:scale-110 transition-transform`}
+                        >
+                          {transaction.type === "earned" ? (
+                            <TrendingUp className="w-5 h-5" />
+                          ) : (
+                            <CreditCard className="w-5 h-5" />
+                          )}
                         </div>
                         <div>
-                          <div className="font-semibold text-slate-900">{transaction.description}</div>
+                          <div className="font-semibold text-slate-900">
+                            {transaction.description}
+                          </div>
                           <div className="text-sm text-slate-500 flex items-center gap-2">
                             <Calendar className="w-3 h-3" />
                             {transaction.date}
                           </div>
                         </div>
                       </div>
-                      <div className={`text-lg font-bold ${
-                        transaction.type === 'earned' ? 'text-emerald-600' : 'text-rose-600'
-                      }`}>
-                        {transaction.type === 'earned' ? '+' : ''}{transaction.amount}
+                      <div
+                        className={`text-lg font-bold ${
+                          transaction.type === "earned"
+                            ? "text-emerald-600"
+                            : "text-rose-600"
+                        }`}
+                      >
+                        {transaction.type === "earned" ? "+" : ""}
+                        {transaction.amount}
                       </div>
                     </motion.div>
                   ))}
@@ -485,7 +617,8 @@ export default function WalletLanding() {
                 Earn Credits
               </h2>
               <p className="text-slate-600 text-lg max-w-2xl mx-auto font-medium">
-                Multiple ways to grow your credit balance and unlock premium features across the Crowbar network.
+                Multiple ways to grow your credit balance and unlock premium features
+                across the Crowbar network.
               </p>
             </motion.div>
 
@@ -499,33 +632,42 @@ export default function WalletLanding() {
                   className="p-6 rounded-2xl bg-white border border-slate-200 shadow-lg hover:shadow-xl transition-all duration-300 group hover:border-slate-300"
                 >
                   <div className="flex items-start justify-between mb-4">
-                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-r ${method.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}>
+                    <div
+                      className={`w-12 h-12 rounded-xl bg-gradient-to-r ${method.color} flex items-center justify-center text-white shadow-lg group-hover:scale-110 transition-transform`}
+                    >
                       <method.icon className="w-6 h-6" />
                     </div>
                     <div className="text-right">
-                      <div className="text-2xl font-bold text-emerald-600">+{method.credits}</div>
+                      <div className="text-2xl font-bold text-emerald-600">
+                        +{method.credits}
+                      </div>
                       <div className="text-sm text-slate-500">credits</div>
                     </div>
                   </div>
-                  
-                  <h3 className="text-lg font-semibold text-slate-900 mb-2">{method.title}</h3>
+
+                  <h3 className="text-lg font-semibold text-slate-900 mb-2">
+                    {method.title}
+                  </h3>
                   <p className="text-slate-600 text-sm mb-4">{method.description}</p>
-                  
+
                   <button
+                    onClick={
+                      method.status === "completed" ? undefined : openPlaceholder
+                    }
                     className={`w-full py-3 rounded-xl text-sm font-semibold transition-all ${
-                      method.status === 'completed'
-                        ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                      method.status === "completed"
+                        ? "bg-emerald-50 text-emerald-700 border border-emerald-200 cursor-default"
                         : `bg-gradient-to-r ${method.color} hover:shadow-lg text-white`
                     }`}
-                    disabled={method.status === 'completed'}
+                    disabled={method.status === "completed"}
                   >
-                    {method.status === 'completed' ? (
+                    {method.status === "completed" ? (
                       <span className="flex items-center justify-center gap-2">
                         <CheckCircle2 className="w-4 h-4" />
                         Completed
                       </span>
                     ) : (
-                      'Start Earning'
+                      "Start Earning"
                     )}
                   </button>
                 </motion.div>
@@ -544,29 +686,35 @@ export default function WalletLanding() {
                 Use Credits
               </h2>
               <p className="text-slate-600 text-lg max-w-2xl mx-auto font-medium">
-                Redeem your credits for exclusive features, premium content, and special privileges.
+                Redeem your credits for exclusive features, premium content, and
+                special privileges.
               </p>
             </motion.div>
 
             <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               whileInView={{ opacity: 1, scale: 1 }}
-              className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-8 text-center text-white shadow-xl shadow-purple-500/25 overflow-hidden relative"
+              onClick={openPlaceholder}
+              role="button"
+              tabIndex={0}
+              className="bg-gradient-to-br from-violet-500 to-purple-600 rounded-2xl p-8 text-center text-white shadow-xl shadow-purple-500/25 overflow-hidden relative cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/60"
             >
               {/* Background Pattern */}
               <div className="absolute inset-0 opacity-10">
                 <div className="absolute -top-20 -right-20 w-40 h-40 bg-white rounded-full"></div>
                 <div className="absolute -bottom-20 -left-20 w-40 h-40 bg-white rounded-full"></div>
               </div>
-              
+
               <div className="relative z-10">
                 <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mx-auto mb-6 border border-white/30">
                   <Gift className="w-8 h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold mb-4">Premium Redemption Coming Soon</h3>
+                <h3 className="text-2xl font-bold mb-4">
+                  Premium Redemption Coming Soon
+                </h3>
                 <p className="text-violet-100 text-lg mb-6 max-w-md mx-auto">
-                  We are building an incredible marketplace for you to spend your hard-earned credits.
-                  Launching Q1 2025.
+                  We are building an incredible marketplace for you to spend your
+                  hard-earned credits. Launching Q1 2025.
                 </p>
                 <div className="flex flex-wrap justify-center gap-3">
                   <div className="px-4 py-2 rounded-full bg-white/20 text-violet-100 text-sm border border-white/30 backdrop-blur-sm">
@@ -596,7 +744,8 @@ export default function WalletLanding() {
               Sign In to Access Your Credit Dashboard
             </h2>
             <p className="text-slate-600 text-lg mb-8 max-w-md mx-auto">
-              Connect with your Crowbar account to view your credit balance, transaction history, and earning opportunities.
+              Connect with your Crowbar account to view your credit balance,
+              transaction history, and earning opportunities.
             </p>
             <button
               onClick={signInWithCrowbar}
@@ -607,6 +756,45 @@ export default function WalletLanding() {
             </button>
           </motion.div>
         </section>
+      )}
+
+      {/* ========== COMING SOON PLACEHOLDER OVERLAY ========== */}
+      {showPlaceholder && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center bg-slate-900/70 backdrop-blur-sm">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="relative max-w-md w-full mx-4 rounded-3xl bg-white shadow-2xl p-8 text-center"
+          >
+            <button
+              onClick={() => setShowPlaceholder(false)}
+              className="absolute top-4 right-4 rounded-full p-1.5 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
+            <div className="flex justify-center mb-6">
+              <div className="w-16 h-16 rounded-2xl bg-indigo-50 flex items-center justify-center">
+                <Construction className="w-8 h-8 text-indigo-600" />
+              </div>
+            </div>
+
+            <h2 className="text-2xl font-semibold text-slate-900 mb-2">
+              Coming Soon
+            </h2>
+            <p className="text-slate-500 mb-6 text-sm leading-relaxed">
+              This Crowbar Wallet feature is still being finalised. Please check
+              back soon for the full experience.
+            </p>
+
+            <button
+              onClick={() => setShowPlaceholder(false)}
+              className="px-6 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-md"
+            >
+              Go Back
+            </button>
+          </motion.div>
+        </div>
       )}
 
       {/* ========== MODERN FOOTER ========== */}
@@ -624,10 +812,14 @@ export default function WalletLanding() {
                 <div className="text-xs text-white">Credit Management System</div>
               </div>
             </div>
-            
+
             <div className="text-white text-sm text-center md:text-right">
-              <div className="font-medium">© 2025 Crowbar Wallet — Part of the Crowbar Connected Network</div>
-              <div className="text-xs mt-1 text-white">Securely integrated with Crowbar Dashboard</div>
+              <div className="font-medium">
+                © 2025 Crowbar Wallet — Part of the Crowbar Connected Network
+              </div>
+              <div className="text-xs mt-1 text-white">
+                Securely integrated with Crowbar Dashboard
+              </div>
             </div>
           </div>
         </div>
