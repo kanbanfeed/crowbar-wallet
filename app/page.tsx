@@ -186,7 +186,7 @@ export default function WalletLanding() {
 
   const openPlaceholder = () => {
     setShowPlaceholder(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    
   };
 
   return (
@@ -425,7 +425,10 @@ export default function WalletLanding() {
                 <ArrowUpRight className="w-5 h-5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
               </button>
               <button
-                onClick={openPlaceholder}
+                 onClick={(e) => {
+                  e.preventDefault();
+                  openPlaceholder();
+                }}
                 className="px-8 py-4 rounded-xl border border-slate-300 bg-white/80 hover:bg-white text-slate-700 text-base font-semibold shadow-sm hover:shadow-md transition-all duration-300 backdrop-blur-sm"
               >
                 Watch Demo
